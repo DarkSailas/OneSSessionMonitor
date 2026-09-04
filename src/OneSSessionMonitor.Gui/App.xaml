@@ -1,0 +1,58 @@
+﻿<Application x:Class="OneSSessionMonitor.Gui.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="App_Startup">
+    <Application.Resources>
+        <!-- Analogue Design System Tokens -->
+        <SolidColorBrush x:Key="CarbonCanvas" Color="#000000"/>
+        <SolidColorBrush x:Key="BoneWhite" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="AshVeil" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="AshVeilMuted" Color="#262626"/>
+        <SolidColorBrush x:Key="AshVeilBorder" Color="#333333"/>
+        <SolidColorBrush x:Key="Smoke" Color="#BFBFBF"/>
+        <SolidColorBrush x:Key="IronGray" Color="#999999"/>
+        <SolidColorBrush x:Key="CardSurface" Color="#0A0A0A"/>
+        <SolidColorBrush x:Key="CardSurfaceElevated" Color="#121212"/>
+        <SolidColorBrush x:Key="PillHover" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="DangerRed" Color="#E54D2E"/>
+        <SolidColorBrush x:Key="SuccessGreen" Color="#30A46C"/>
+        <SolidColorBrush x:Key="WarningYellow" Color="#F5D90A"/>
+
+        <!-- Universal Focus Visual -->
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeThickness="1" Stroke="#E5E7EB" StrokeDashArray="1 2"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ScrollBar Styling (Analogue Minimalist) -->
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="#000000"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid Background="#000000">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="{x:Type Thumb}">
+                                                <Border Background="#333333" CornerRadius="4" Margin="1"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,1205 @@
+<Window x:Class="OneSSessionMonitor.Gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="1С: Session Monitor" Height="880" Width="1440"
+        MinHeight="680" MinWidth="1100" WindowState="Maximized"
+        WindowStartupLocation="CenterScreen" Background="#09090B" Foreground="#EDEDED"
+        Icon="icon.ico"
+        FontFamily="Segoe UI, Inter, -apple-system, sans-serif"
+        ToolTipService.InitialShowDelay="1500"
+        ToolTipService.ShowDuration="30000"
+        ToolTipService.BetweenShowDelay="200"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+
+    <Window.Resources>
+        <!-- ============================================================ -->
+        <!-- REFINED MONOCHROME DARK PALETTE (Slate / Zinc / VS Modern)  -->
+        <!-- ============================================================ -->
+        <SolidColorBrush x:Key="CanvasBackground" Color="#09090B"/>
+        <SolidColorBrush x:Key="CardBackground" Color="#131316"/>
+        <SolidColorBrush x:Key="CardBackgroundElevated" Color="#18181C"/>
+        <SolidColorBrush x:Key="InputBackground" Color="#0D0D10"/>
+        <SolidColorBrush x:Key="BorderDefault" Color="#26262B"/>
+        <SolidColorBrush x:Key="BorderHover" Color="#3A3A42"/>
+        <SolidColorBrush x:Key="BorderFocus" Color="#52525B"/>
+        
+        <SolidColorBrush x:Key="TextPrimary" Color="#EDEDED"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#9E9EA8"/>
+        <SolidColorBrush x:Key="TextMuted" Color="#6B6B76"/>
+
+        <!-- Subdued Status Indicators (Non-acidic, elegant) -->
+        <SolidColorBrush x:Key="StatusActiveFg" Color="#34D399"/>
+        <SolidColorBrush x:Key="StatusActiveBg" Color="#102019"/>
+        <SolidColorBrush x:Key="StatusActiveBorder" Color="#1A3B2E"/>
+
+        <SolidColorBrush x:Key="StatusSleepingFg" Color="#FBBF24"/>
+        <SolidColorBrush x:Key="StatusSleepingBg" Color="#22180A"/>
+        <SolidColorBrush x:Key="StatusSleepingBorder" Color="#3B2712"/>
+
+        <SolidColorBrush x:Key="StatusFrozenFg" Color="#FB7185"/>
+        <SolidColorBrush x:Key="StatusFrozenBg" Color="#241014"/>
+        <SolidColorBrush x:Key="StatusFrozenBorder" Color="#401820"/>
+
+        <SolidColorBrush x:Key="StatusSlkFg" Color="#A5B4FC"/>
+        <SolidColorBrush x:Key="StatusSlkBg" Color="#161726"/>
+        <SolidColorBrush x:Key="StatusSlkBorder" Color="#282A45"/>
+
+        <!-- Universal Card Containers -->
+        <Style x:Key="TauriCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+
+        <Style x:Key="CompactKpiCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,10"/>
+        </Style>
+
+        <!-- Primary High-Contrast Button (Shadcn Light Zinc on Dark) -->
+        <Style x:Key="ShadcnPrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#E4E4E7"/>
+            <Setter Property="Foreground" Value="#18181B"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#FAFAFA"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#D4D4D8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#27272A"/>
+                                <Setter Property="Foreground" Value="#71717A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Secondary Outline / Dark Button -->
+        <Style x:Key="ShadcnSecondaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#18181C"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#222228"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#121215"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#1E1E22"/>
+                                <Setter Property="Foreground" Value="#52525B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Subdued Destructive / Danger Button -->
+        <Style x:Key="ShadcnDangerButton" TargetType="Button">
+            <Setter Property="Background" Value="#201114"/>
+            <Setter Property="Foreground" Value="#F87171"/>
+            <Setter Property="BorderBrush" Value="#3D181E"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#2C161A"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#542029"/>
+                                <Setter Property="Foreground" Value="#FECACA"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#180C0E"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#1E1E22"/>
+                                <Setter Property="Foreground" Value="#52525B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Refined Export Button -->
+        <Style x:Key="ShadcnExportButton" TargetType="Button" BasedOn="{StaticResource ShadcnSecondaryButton}">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Monotone Filter Chip ToggleButton -->
+        <Style x:Key="ShadcnFilterChip" TargetType="ToggleButton">
+            <Setter Property="Background" Value="#151518"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="ChipBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ChipBorder" Property="Background" Value="#1E1E23"/>
+                                <Setter TargetName="ChipBorder" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="ChipBorder" Property="Background" Value="#25252D"/>
+                                <Setter TargetName="ChipBorder" Property="BorderBrush" Value="#4B4B57"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Monotone Input (TextBox) -->
+        <Style x:Key="ShadcnInput" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#EDEDED"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource BorderFocus}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Monotone Password Input -->
+        <Style x:Key="ShadcnPasswordInput" TargetType="PasswordBox">
+            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#EDEDED"/>
+        </Style>
+
+        <!-- Full Dark ComboBoxItem Style -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#151518"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#222228"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#272730"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Full Dark ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource InputBackground}"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="22"/>
+                            </Grid.ColumnDefinitions>
+                            <ToggleButton x:Name="ToggleButton" Grid.ColumnSpan="2" Focusable="False" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="templateRoot" Background="{StaticResource InputBackground}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="5">
+                                            <Border x:Name="splitBorder" Width="22" HorizontalAlignment="Right" Background="Transparent">
+                                                <Path x:Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" Data="F1 M 0,0 L 4,4 L 8,0 Z" Fill="#858590"/>
+                                            </Border>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                                <Setter TargetName="arrow" Property="Fill" Value="#EDEDED"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="templateRoot" Property="BorderBrush" Value="{StaticResource BorderFocus}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter x:Name="contentTemplate" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Grid.ColumnSpan="2" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" PopupAnimation="Slide" Placement="Bottom">
+                                <Border x:Name="dropDownBorder" Background="#151518" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="6" MinWidth="{Binding ActualWidth, ElementName=MainGrid}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Margin="0,3,0,0">
+                                    <ScrollViewer x:Name="DropDownScrollViewer">
+                                        <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
+                                            <Canvas x:Name="canvas" Height="0" Width="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                            <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Monotone CheckBox -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="CheckBorder" Width="15" Height="15" Background="{StaticResource InputBackground}" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="3.5" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Path x:Name="CheckMark"
+                                      Data="M 3.2,7.6 L 5.9,10.4 L 11.8,4.2"
+                                      Stroke="#FFFFFF"
+                                      StrokeThickness="1.6"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckBorder" Property="Background" Value="#3F3F46"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#52525B"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="#EDEDED"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ToolTip Style -->
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="#151518"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}" MaxWidth="440">
+                            <TextBlock Text="{TemplateBinding Content}" TextWrapping="Wrap" Foreground="{TemplateBinding Foreground}" FontSize="11.5" LineHeight="16"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Subdued InfoBadge Icon -->
+        <Style x:Key="InfoBadge" TargetType="ContentControl">
+            <Setter Property="Width" Value="14"/>
+            <Setter Property="Height" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Cursor" Value="Help"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="1500"/>
+            <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Border x:Name="Bd" Background="#1C1C20" BorderBrush="#2F2F36" BorderThickness="1" CornerRadius="7">
+                            <TextBlock Text="i" Foreground="#858590" FontSize="9" FontWeight="Bold" FontFamily="Segoe UI, sans-serif" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="0,-1,0,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2D2D36"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Ultra-Slim Dark ScrollBar -->
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="6"/>
+                    <Setter Property="Height" Value="Auto"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ScrollBar}">
+                                <Grid x:Name="Bg" SnapsToDevicePixels="True" Background="Transparent">
+                                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.LineUpCommand}" Opacity="0" Focusable="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.LineDownCommand}" Opacity="0" Focusable="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb>
+                                                <Thumb.Template>
+                                                    <ControlTemplate TargetType="{x:Type Thumb}">
+                                                        <Border x:Name="ThumbBorder" Background="#2A2A30" CornerRadius="3" Margin="0"/>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="ThumbBorder" Property="Background" Value="#444450"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsDragging" Value="True">
+                                                                <Setter TargetName="ThumbBorder" Property="Background" Value="#555564"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Thumb.Template>
+                                            </Thumb>
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="6"/>
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ScrollBar}">
+                                <Grid x:Name="Bg" SnapsToDevicePixels="True" Background="Transparent">
+                                    <Track x:Name="PART_Track" IsDirectionReversed="False">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.LineLeftCommand}" Opacity="0" Focusable="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="{x:Static ScrollBar.LineRightCommand}" Opacity="0" Focusable="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb>
+                                                <Thumb.Template>
+                                                    <ControlTemplate TargetType="{x:Type Thumb}">
+                                                        <Border x:Name="ThumbBorder" Background="#2A2A30" CornerRadius="3" Margin="0"/>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="ThumbBorder" Property="Background" Value="#444450"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsDragging" Value="True">
+                                                                <Setter TargetName="ThumbBorder" Property="Background" Value="#555564"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Thumb.Template>
+                                            </Thumb>
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Header & Row Styling -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#131316"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border x:Name="HeaderBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <Path x:Name="SortArrow" Grid.Column="1" Margin="6,0,2,0" Width="7" Height="5" Stretch="Uniform" Fill="#EDEDED" Visibility="Collapsed" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="#1A1A1E"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                            <Trigger Property="SortDirection" Value="Ascending">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="#1C1C22"/>
+                                <Setter TargetName="HeaderBorder" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="SortArrow" Property="Data" Value="M 0 5 L 3.5 0 L 7 5 Z"/>
+                            </Trigger>
+                            <Trigger Property="SortDirection" Value="Descending">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="#1C1C22"/>
+                                <Setter TargetName="HeaderBorder" Property="BorderBrush" Value="{StaticResource BorderHover}"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="SortArrow" Property="Data" Value="M 0 0 L 3.5 5 L 7 0 Z"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="#09090B"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="#18181C"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsFrozen}" Value="True">
+                    <Setter Property="Background" Value="#160E11"/>
+                    <Setter Property="BorderBrush" Value="#2A141A"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Hibernate}" Value="True">
+                    <Setter Property="Background" Value="#15110A"/>
+                    <Setter Property="BorderBrush" Value="#281E10"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1A1A20"/>
+                    <Setter Property="BorderBrush" Value="#2D2D36"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#20222B"/>
+                    <Setter Property="BorderBrush" Value="#3B4254"/>
+                    <Setter Property="Foreground" Value="#FAFAFA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Foreground}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#FAFAFA"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Dark ContextMenu -->
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#151518"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="#151518" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="6" Padding="4">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#EDEDED"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}" Margin="0,1">
+                            <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#222228"/>
+                                <Setter Property="Foreground" Value="#FAFAFA"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Height" Value="1"/>
+            <Setter Property="Margin" Value="4,4"/>
+            <Setter Property="Background" Value="{StaticResource BorderDefault}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Background="{StaticResource BorderDefault}" Height="1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- 1. Header Toolbar -->
+            <RowDefinition Height="Auto"/> <!-- 2. Compact KPI Row -->
+            <RowDefinition Height="*"/>    <!-- 3. Main Content Area -->
+            <RowDefinition Height="Auto"/> <!-- 4. Footer Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- ============================================================ -->
+        <!-- 1. TOP HEADER TOOLBAR                                        -->
+        <!-- ============================================================ -->
+        <Border Grid.Row="0" Style="{StaticResource TauriCard}" Padding="14,10" Margin="0,0,0,10">
+            <DockPanel LastChildFill="True">
+                <!-- Brand Title Block -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="28" Height="28" CornerRadius="6" Background="#26262D" BorderBrush="{StaticResource BorderHover}" BorderThickness="1" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <TextBlock Text="1С" Foreground="#FAFAFA" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="1С: SESSION MONITOR" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <TextBlock Text="Мониторинг и управление сеансами кластера" Foreground="{StaticResource TextPrimary}" FontSize="14" FontWeight="SemiBold" Margin="0,1,0,0"/>
+                    </StackPanel>
+                    <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Профессиональный аудит, мониторинг и автоматическое завершение спящих и зависших сеансов 1С:Предприятие 8.3 через протокол RAS." Margin="8,0,0,0"/>
+                </StackPanel>
+
+                <!-- Action Buttons (Right aligned) -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="BtnCancelScan" Content="ОСТАНОВИТЬ" Style="{StaticResource ShadcnDangerButton}" Margin="0,0,8,0" Visibility="Collapsed" Click="BtnCancelScan_Click" ToolTip="Прервать текущую операцию сканирования серверов 1С и СЛК."/>
+                    <Button x:Name="BtnRefresh" Content="СКАНИРОВАТЬ СЕАНСЫ" Style="{StaticResource ShadcnPrimaryButton}" Margin="0,0,8,0" Click="BtnRefresh_Click" ToolTip="Опросить указанные серверы 1С через протокол RAS и обновить список сеансов."/>
+                    <Button x:Name="BtnCleanSleeping" Content="ОЧИСТИТЬ СПЯЩИЕ" Style="{StaticResource ShadcnSecondaryButton}" Margin="0,0,8,0" Click="BtnCleanSleeping_Click" ToolTip="Принудительно завершить все спящие сеансы, подходящие под параметры фильтрации."/>
+                    <Button x:Name="BtnTerminateSelected" Content="ЗАВЕРШИТЬ ВЫБРАННЫЕ" Style="{StaticResource ShadcnDangerButton}" Margin="0,0,0,0" Click="BtnTerminateSelected_Click" ToolTip="Принудительно завершить любые выбранные сеансы (активные, спящие, зависшие)."/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============================================================ -->
+        <!-- 2. REFINED KPI METRIC CARDS ROW                              -->
+        <!-- ============================================================ -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Card 1: Всего сеансов -->
+            <Border Grid.Column="0" Style="{StaticResource CompactKpiCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ВСЕГО СЕАНСОВ" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Общее число активных, спящих и зависших сеансов на серверах 1С."/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtTotalSessions" Text="0" Foreground="#FAFAFA" FontSize="19" FontWeight="Bold" Margin="0,2,0,0"/>
+                    <TextBlock Text="Все подключения" Foreground="{StaticResource TextMuted}" FontSize="10" Margin="0,1,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 2: Спящих сеансов -->
+            <Border Grid.Column="2" Style="{StaticResource CompactKpiCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="СПЯЩИХ (HIBERNATE)" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Сеансы с признаком Hibernate=yes, удерживающие лицензии 1С."/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtSleepingSessions" Text="0" Foreground="{StaticResource StatusSleepingFg}" FontSize="19" FontWeight="Bold" Margin="0,2,0,0"/>
+                    <TextBlock Text="Кандидаты на очистку" Foreground="{StaticResource TextMuted}" FontSize="10" Margin="0,1,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 3: Зависших сеансов -->
+            <Border Grid.Column="4" Style="{StaticResource CompactKpiCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ЗАВИСШИХ СЕАНСОВ" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Сеансы с блокировками СУБД/1С или длящейся более 5 минут транзакцией."/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtFrozenSessions" Text="0" Foreground="{StaticResource StatusFrozenFg}" FontSize="19" FontWeight="Bold" Margin="0,2,0,0"/>
+                    <TextBlock Text="Блокировки СУБД / 1С" Foreground="{StaticResource TextMuted}" FontSize="10" Margin="0,1,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 4: Отраслевые лицензии (СЛК) -->
+            <Border Grid.Column="6" Style="{StaticResource CompactKpiCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ЛИЦЕНЗИИ СЛК" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Сеансы с отраслевыми лицензиями СЛК/Катран/ERP/WMS/CRM (опрос сервера СЛК и платформы 1С)."/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtIndustryLicCount" Text="0" Foreground="{StaticResource StatusSlkFg}" FontSize="19" FontWeight="Bold" Margin="0,2,0,0"/>
+                    <TextBlock x:Name="TxtSlkStatusSub" Text="Отраслевые модули" Foreground="{StaticResource TextMuted}" FontSize="10" Margin="0,1,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Card 5: Статус RAS соединения -->
+            <Border Grid.Column="8" Style="{StaticResource CompactKpiCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="ПРОТОКОЛ RAS" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="SemiBold"/>
+                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Статус утилиты rac.exe и адрес опрашиваемых серверов администрирования 1С."/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                        <Ellipse x:Name="RasLed" Width="7" Height="7" Fill="{StaticResource StatusActiveFg}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="TxtRasStatus" Text="RAC ГОТОВ" Foreground="#FAFAFA" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtServerEndpoint" Text="localhost:1545" Foreground="{StaticResource TextMuted}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================ -->
+        <!-- 3. MAIN WORKSPACE CONTENT                                    -->
+        <!-- ============================================================ -->
+        <Border Grid.Row="2" Style="{StaticResource TauriCard}" Padding="0">
+            <TabControl Background="Transparent" BorderThickness="0" Margin="0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="18,10"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="TabBorder" Property="BorderBrush" Value="#EDEDED"/>
+                                            <Setter Property="Foreground" Value="#FAFAFA"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="#EDEDED"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+
+                <!-- TAB 1: МОНИТОРИНГ СЕАНСОВ -->
+                <TabItem Header="МОНИТОРИНГ СЕАНСОВ">
+                    <Grid Margin="12,10,12,12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Row 1: Two-Tier Advanced Filters Bar -->
+                            <RowDefinition Height="*"/>    <!-- Row 2: Sessions DataGrid -->
+                        </Grid.RowDefinitions>
+
+                        <!-- Панель Фильтров и Экспорта (Two-Tier Structured Toolbar) -->
+                        <Border Grid.Row="0" Background="#0F0F12" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
+                            <StackPanel>
+                                <!-- Tier 1: Поиск, Фильтры статуса (Чипы), Экспорт и Сброс -->
+                                <DockPanel LastChildFill="True" Margin="0,0,0,8">
+                                    <!-- Левая часть: Поиск + Чипы статуса -->
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="ПОИСК:" Foreground="{StaticResource TextMuted}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBox x:Name="TxtSearchFilter" Width="190" Style="{StaticResource ShadcnInput}" TextChanged="FilterChanged_Handler" ToolTip="Быстрый поиск по всем полям таблицы"/>
+                                        <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Поиск по имени пользователя, базе, клиенту, серверу или ID сеанса." Margin="6,0,12,0"/>
+
+                                        <TextBlock Text="СТАТУС:" Foreground="{StaticResource TextMuted}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <ToggleButton x:Name="ChipAll" Content="ВСЕ (0)" Style="{StaticResource ShadcnFilterChip}" IsChecked="True" Click="ChipStatus_Click" Margin="0,0,4,0"/>
+                                        <ToggleButton x:Name="ChipSleeping" Content="СПЯЩИЕ (0)" Style="{StaticResource ShadcnFilterChip}" Click="ChipStatus_Click" Margin="0,0,4,0"/>
+                                        <ToggleButton x:Name="ChipFrozen" Content="ЗАВИСШИЕ (0)" Style="{StaticResource ShadcnFilterChip}" Click="ChipStatus_Click" Margin="0,0,4,0"/>
+                                        <ToggleButton x:Name="ChipActive" Content="АКТИВНЫЕ (0)" Style="{StaticResource ShadcnFilterChip}" Click="ChipStatus_Click" Margin="0,0,4,0"/>
+                                        <ToggleButton x:Name="ChipSlk" Content="СЛК (0)" Style="{StaticResource ShadcnFilterChip}" Click="ChipStatus_Click"/>
+                                    </StackPanel>
+
+                                    <!-- Правая часть: Кнопки Экспорта и Счетчик -->
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Button Content="JSON / JSONL" Style="{StaticResource ShadcnExportButton}" Click="BtnExportJson_Click" ToolTip="Экспорт выделенных (или всех отображаемых) сеансов в файл JSON/JSONL" Margin="0,0,6,0"/>
+                                        <Button Content="EXCEL (.XLSX)" Style="{StaticResource ShadcnExportButton}" Click="BtnExportExcel_Click" ToolTip="Экспорт таблицы сеансов в файл Microsoft Excel (.xlsx)" Margin="0,0,10,0"/>
+                                        
+                                        <Button Content="СБРОСИТЬ" Style="{StaticResource ShadcnSecondaryButton}" Height="28" Padding="10,0" FontSize="11" Click="BtnResetFilters_Click" Margin="0,0,8,0" ToolTip="Сбросить все фильтры и показать полный список сеансов"/>
+                                        <Border Background="#1A1A20" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+                                            <TextBlock x:Name="TxtFilteredStatus" Text="0 из 0" Foreground="#FAFAFA" FontSize="11" FontWeight="SemiBold"/>
+                                        </Border>
+                                    </StackPanel>
+                                </DockPanel>
+
+                                <Separator Background="{StaticResource BorderDefault}" Margin="0,0,0,8"/>
+
+                                <!-- Tier 2: Выпадающие фильтры баз, клиентов, чекбокс исключений и Dry-Run -->
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="БАЗА:" Foreground="{StaticResource TextMuted}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <ComboBox x:Name="CmbBaseFilter" Width="160" SelectionChanged="FilterChanged_Handler" Margin="0,0,12,0"/>
+
+                                    <TextBlock Text="КЛИЕНТ:" Foreground="{StaticResource TextMuted}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <ComboBox x:Name="CmbAppFilter" Width="130" SelectionChanged="FilterChanged_Handler" Margin="0,0,12,0"/>
+
+                                    <ToggleButton x:Name="TglShowAllUsers" Content="ВСЕ ПОЛЬЗОВАТЕЛИ" Style="{StaticResource ShadcnFilterChip}" Click="FilterChanged_Handler" ToolTip="Отображать абсолютно всех пользователей (включая тех, кто находится в белом списке исключений настроек)"/>
+                                    <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Если кнопка нажата, в таблице отображаются все пользователи 1С без скрытия исключенных из белого списка." Margin="6,0,16,0"/>
+
+                                    <CheckBox x:Name="ChkDryRun" Content="Режим симуляции (Dry-Run)" IsChecked="False"/>
+                                    <ContentControl Style="{StaticResource InfoBadge}" ToolTip="В режиме Dry-Run программа симулирует завершение сеансов и формирует отчет без реального разрыва связи." Margin="6,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Sessions DataGrid -->
+                        <DataGrid x:Name="GridSessions" PreviewKeyDown="GridSessions_PreviewKeyDown" MouseDown="GridSessions_MouseDown" Grid.Row="1"
+                                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                                  IsReadOnly="True" SelectionMode="Extended" GridLinesVisibility="Horizontal"
+                                  CanUserSortColumns="True"
+                                  HorizontalGridLinesBrush="#18181C" HeadersVisibility="Column"
+                                  Background="#09090B" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1"
+                                  ScrollViewer.CanContentScroll="True"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Завершить выбранный сеанс" Click="MenuTerminate_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Экспорт выбранных в Excel" Click="BtnExportExcel_Click"/>
+                                    <MenuItem Header="Экспорт выбранных в JSON" Click="BtnExportJson_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Копировать имя пользователя" Click="MenuCopyUser_Click"/>
+                                    <MenuItem Header="Копировать имя информационной базы" Click="MenuCopyBase_Click"/>
+                                    <MenuItem Header="Копировать ID сеанса" Click="MenuCopyId_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <!-- 1. Status Column -->
+                                <DataGridTemplateColumn Header="СТАТУС" Width="95" MinWidth="85" SortMemberPath="StatusSortOrder">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="StatusBadge" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                <TextBlock x:Name="StatusText" FontSize="10.5" FontWeight="SemiBold"/>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsFrozen}" Value="True">
+                                                    <Setter TargetName="StatusBadge" Property="Background" Value="{StaticResource StatusFrozenBg}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderBrush" Value="{StaticResource StatusFrozenBorder}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderThickness" Value="1"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="{StaticResource StatusFrozenFg}"/>
+                                                    <Setter TargetName="StatusText" Property="Text" Value="ЗАВИСШИЙ"/>
+                                                </DataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsFrozen}" Value="False"/>
+                                                        <Condition Binding="{Binding Hibernate}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="StatusBadge" Property="Background" Value="{StaticResource StatusSleepingBg}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderBrush" Value="{StaticResource StatusSleepingBorder}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderThickness" Value="1"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="{StaticResource StatusSleepingFg}"/>
+                                                    <Setter TargetName="StatusText" Property="Text" Value="СПЯЩИЙ"/>
+                                                </MultiDataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsFrozen}" Value="False"/>
+                                                        <Condition Binding="{Binding Hibernate}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="StatusBadge" Property="Background" Value="{StaticResource StatusActiveBg}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderBrush" Value="{StaticResource StatusActiveBorder}"/>
+                                                    <Setter TargetName="StatusBadge" Property="BorderThickness" Value="1"/>
+                                                    <Setter TargetName="StatusText" Property="Foreground" Value="{StaticResource StatusActiveFg}"/>
+                                                    <Setter TargetName="StatusText" Property="Text" Value="АКТИВЕН"/>
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- 2. Session ID -->
+                                <DataGridTextColumn Header="ID" Binding="{Binding SessionId}" SortMemberPath="SessionId" Width="60" MinWidth="45"/>
+
+                                <!-- 3. User Name -->
+                                <DataGridTextColumn Header="ПОЛЬЗОВАТЕЛЬ" Binding="{Binding UserName}" Width="1.5*" MinWidth="120"/>
+
+                                <!-- 4. InfoBase Name -->
+                                <DataGridTextColumn Header="ИНФОРМАЦИОННАЯ БАЗА" Binding="{Binding InfoBaseName}" Width="1.2*" MinWidth="110"/>
+
+                                <!-- 5. Licenses / SLK -->
+                                <DataGridTemplateColumn Header="ЛИЦЕНЗИИ (СЛК / 1С)" Width="1.2*" MinWidth="110" SortMemberPath="FormattedLicenses">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border x:Name="LicBadge" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                <TextBlock x:Name="LicText" Text="{Binding FormattedLicenses}" FontSize="11"/>
+                                            </Border>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding HasIndustryLicense}" Value="True">
+                                                    <Setter TargetName="LicBadge" Property="Background" Value="{StaticResource StatusSlkBg}"/>
+                                                    <Setter TargetName="LicBadge" Property="BorderBrush" Value="{StaticResource StatusSlkBorder}"/>
+                                                    <Setter TargetName="LicBadge" Property="BorderThickness" Value="1"/>
+                                                    <Setter TargetName="LicText" Property="Foreground" Value="{StaticResource StatusSlkFg}"/>
+                                                    <Setter TargetName="LicText" Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding HasIndustryLicense}" Value="False">
+                                                    <Setter TargetName="LicText" Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <!-- 6. Memory (RAM) -->
+                                <DataGridTextColumn Header="ОЗУ (RAM)" Binding="{Binding FormattedMemory}" SortMemberPath="SortMemoryBytes" Width="85" MinWidth="75" FontWeight="SemiBold"/>
+
+                                <!-- 7. CPU Load (%) -->
+                                <DataGridTextColumn Header="ЦП (CPU %)" Binding="{Binding FormattedCpuTime}" SortMemberPath="SortCpuTimeMs" Width="125" MinWidth="110"/>
+
+                                <!-- 8. Sleep Duration / Block -->
+                                <DataGridTextColumn Header="ВРЕМЯ НЕАКТИВНОСТИ" Binding="{Binding FormattedHibernateDuration}" SortMemberPath="InactiveDurationSeconds" Width="130" MinWidth="95"/>
+
+                                <!-- 9. Client App -->
+                                <DataGridTextColumn Header="КЛИЕНТ" Binding="{Binding AppId}" Width="80" MinWidth="65"/>
+
+                                <!-- 10. Server Host -->
+                                <DataGridTextColumn Header="RAS" Binding="{Binding Server}" Width="105" MinWidth="80"/>
+
+                                <!-- 11. Client Machine Host -->
+                                <DataGridTextColumn Header="ХОСТ КЛИЕНТА" Binding="{Binding Host}" Width="105" MinWidth="80"/>
+
+                                <!-- 12. Started At -->
+                                <DataGridTextColumn Header="НАЧАЛО" Binding="{Binding FormattedStartedAt}" SortMemberPath="SortStartedAt" Width="145" MinWidth="130"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- TAB 2: RAC DIAGNOSTICS & LOG (Real-Time Terminal Console) -->
+                <TabItem Header="ЖУРНАЛ RAC (ДИАГНОСТИКА)">
+                    <Grid Margin="14">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="КОНСОЛЬ ВЫЗОВОВ 1C RAC В РЕАЛЬНОМ ВРЕМЕНИ" Foreground="#EDEDED" FontSize="13" FontWeight="SemiBold"/>
+                                <ContentControl Style="{StaticResource InfoBadge}" ToolTip="Здесь в реальном времени отображаются точные команды rac.exe, параметры кластеров, коды возврата и ошибки 1С." Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                                <Button x:Name="BtnTestRac" Content="ТЕСТ RAC ПОДКЛЮЧЕНИЯ" Style="{StaticResource ShadcnSecondaryButton}" Margin="0,0,8,0" Click="BtnTestRac_Click" ToolTip="Выполнить тестовый запрос cluster list к серверу 1С и вывести полный ответ."/>
+                                <Button x:Name="BtnClearRacLog" Content="ОЧИСТИТЬ ЖУРНАЛ" Style="{StaticResource ShadcnSecondaryButton}" Margin="0,0,8,0" Click="BtnClearRacLog_Click"/>
+                                <Button x:Name="BtnCopyRacLog" Content="СКОПИРОВАТЬ ВСЁ" Style="{StaticResource ShadcnPrimaryButton}" Click="BtnCopyRacLog_Click"/>
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Border Grid.Row="1" Background="#09090C" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <TextBox x:Name="TxtRacLogConsole" Background="Transparent" Foreground="#C9D1D9" FontFamily="Consolas, monospace" FontSize="12" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" BorderThickness="0"/>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <!-- TAB 3: НАСТРОЙКИ (ПАРАМЕТРЫ И ФИЛЬТРЫ) -->
+                <TabItem Header="НАСТРОЙКИ">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="24" MaxWidth="960" HorizontalAlignment="Left">
+                            <!-- Header Toolbar -->
+                            <Grid Margin="0,0,0,18">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="ПАРАМЕТРЫ СЕРВИСА И КРИТЕРИИ ОЧИСТКИ" Foreground="#EDEDED" FontSize="15" FontWeight="Bold"/>
+                                    <TextBlock Text="Конфигурация сохраняется в appsettings.json и применяется для GUI и службы Windows." Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" x:Name="BtnSaveSettings" Content="СОХРАНИТЬ НАСТРОЙКИ" Style="{StaticResource ShadcnPrimaryButton}" Click="BtnSaveSettings_Click" ToolTip="Записать все параметры в файл конфигурации appsettings.json." Padding="18,0"/>
+                            </Grid>
+
+                            <!-- SECTION 1: 1C RAS / RAC CONNECTION -->
+                            <Border Style="{StaticResource TauriCard}" Padding="16" Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="1. ПОДКЛЮЧЕНИЕ К СЕРВЕРУ 1С (RAS / RAC)" Foreground="#EDEDED" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <TextBlock Text="Сервер 1С (хост:порт RAS):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="CfgServer" Style="{StaticResource ShadcnInput}" Margin="0,0,0,12"/>
+
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Администратор кластера:" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="CfgClusterAdminUser" Style="{StaticResource ShadcnInput}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Пароль администратора кластера:" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <PasswordBox x:Name="CfgClusterAdminPassword" Style="{StaticResource ShadcnPasswordInput}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Text="Путь к утилите rac.exe (оставьте пустым для автопоиска платформы):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="CfgRacPath" Style="{StaticResource ShadcnInput}"/>
+                                        <Button Grid.Column="2" Content="Обзор..." Style="{StaticResource ShadcnSecondaryButton}" Padding="14,0" Click="BtnBrowseRacPath_Click"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 2: SLK SERVER -->
+                            <Border Style="{StaticResource TauriCard}" Padding="16" Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="2. ОТРАСЛЕВОЕ ЛИЦЕНЗИРОВАНИЕ (СЕРВЕР СЛК)" Foreground="#EDEDED" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <TextBlock Text="Сервер СЛК 3.0 / 2.0 (хост:порт, например localhost:9099):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="CfgSlkServer" Style="{StaticResource ShadcnInput}" Margin="0,0,0,12"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Логин к серверу СЛК:" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="CfgSlkUser" Style="{StaticResource ShadcnInput}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Пароль к серверу СЛК:" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <PasswordBox x:Name="CfgSlkPassword" Style="{StaticResource ShadcnPasswordInput}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 3: AUTO-CLEAN CRITERIA -->
+                            <Border Style="{StaticResource TauriCard}" Padding="16" Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="3. ПРАВИЛА АВТОМАТИЧЕСКОЙ ОЧИСТКИ СЕАНСОВ" Foreground="#EDEDED" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <!-- Hibernate Settings -->
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" x:Name="CfgOnlyHibernate" Content="Завершать спящие сеансы (Hibernate = yes)" IsChecked="True"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Минимальное время сна (минут):" Foreground="{StaticResource TextSecondary}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBox x:Name="CfgMinMinutes" Width="70" Style="{StaticResource ShadcnInput}" Text="15"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Separator Background="{StaticResource BorderDefault}" Margin="0,4,0,12"/>
+
+                                    <!-- Frozen Settings -->
+                                    <CheckBox x:Name="CfgCleanFrozen" Content="Завершать зависшие сеансы (дедлоки, блокировки СУБД, зависшие вызовы)" IsChecked="True" Margin="0,0,0,10"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Лимит ожидания СУБД (минут):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="CfgMaxDbProcMinutes" Style="{StaticResource ShadcnInput}" Text="5"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Лимит вызова 1С (минут):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                            <TextBox x:Name="CfgMaxCallDurationMinutes" Style="{StaticResource ShadcnInput}" Text="10"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 4: WHITELISTS / EXCLUSIONS -->
+                            <Border Style="{StaticResource TauriCard}" Padding="16" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="4. БЕЛЫЕ СПИСКИ И ИСКЛЮЧЕНИЯ" Foreground="#EDEDED" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <TextBlock Text="Исключенные пользователи (через запятую):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="CfgExcludedUsers" Style="{StaticResource ShadcnInput}" Margin="0,0,0,12"/>
+
+                                    <TextBlock Text="Исключенные информационные базы (через запятую):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="CfgExcludedBases" Style="{StaticResource ShadcnInput}" Margin="0,0,0,12"/>
+
+                                    <TextBlock Text="Исключенные типы клиентов (AppID, по умолчанию Designer):" Foreground="{StaticResource TextSecondary}" FontSize="12" FontWeight="Medium" Margin="0,0,0,5"/>
+                                    <TextBox x:Name="CfgExcludedAppIds" Style="{StaticResource ShadcnInput}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Border>
+
+        <!-- ============================================================ -->
+        <!-- 4. REFINED STATUS FOOTER                                     -->
+        <!-- ============================================================ -->
+        <Border Grid.Row="3" Background="#121215" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="6" Padding="12,5" Margin="0,8,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Status Text on Left with Live LED -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse x:Name="DotStatus" Width="7" Height="7" Fill="{StaticResource StatusActiveFg}" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="TxtStatusMessage" Text="Готов к работе. Нажмите «СКАНИРОВАТЬ СЕАНСЫ» для проверки кластера 1С." Foreground="{StaticResource TextPrimary}" FontSize="11.5" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <!-- RAM Clean Button, Edition Date, and Telegram Author Signature on Right -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="СБРОС RAM" Foreground="{StaticResource TextMuted}" FontSize="11" FontWeight="Medium" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="BtnCleanMemory_Click" Margin="0,0,12,0" ToolTip="Освобождение кэша оперативной памяти."/>
+
+                    <!-- Стильный бейдж версии и даты сборки -->
+                    <Border Height="24" Background="#16161A" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="12" Padding="10,0" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtAppVersion" Text="v1.4.0" Foreground="#FAFAFA" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtAppBuildDate" Text=" • 04.09.2026" Foreground="{StaticResource TextMuted}" FontSize="11" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Стильный бейдж Telegram автора -->
+                    <Border Height="24" Background="#16161A" BorderBrush="{StaticResource BorderDefault}" BorderThickness="1" CornerRadius="12" Padding="10,0" VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonDown="TgLink_MouseLeftButtonDown" ToolTip="Открыть профиль автора в Telegram: @DarkSailas (https://t.me/DarkSailas)">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Path Data="M20.665,3.717 L2.935,10.554 C1.725,11.04 1.732,11.715 2.713,12.016 L7.265,13.436 L17.797,6.791 C18.295,6.488 18.75,6.651 18.376,6.983 L9.843,14.684 L9.53,19.354 C9.99,19.354 10.193,19.143 10.451,18.894 L12.662,16.744 L17.261,20.141 C18.109,20.608 18.718,20.368 18.929,19.356 L21.948,5.128 C22.257,3.889 21.475,3.328 20.665,3.717 Z" Fill="{StaticResource TextSecondary}" Width="11" Height="11" Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock VerticalAlignment="Center" FontSize="11">
+                                <Run Text="@" Foreground="{StaticResource TextSecondary}" FontWeight="Normal"/>
+                                <Run Text=" " FontSize="3"/>
+                                <Run Text="DarkSailas" Foreground="#FAFAFA" FontWeight="Medium"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

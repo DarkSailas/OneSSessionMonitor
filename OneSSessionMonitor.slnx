@@ -1,0 +1,10 @@
+﻿<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OneSSessionMonitor.Core/OneSSessionMonitor.Core.csproj" />
+    <Project Path="src/OneSSessionMonitor.Gui/OneSSessionMonitor.Gui.csproj" />
+    <Project Path="src/OneSSessionMonitor.Service/OneSSessionMonitor.Service.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OneSSessionMonitor.Tests/OneSSessionMonitor.Tests.csproj" />
+  </Folder>
+</Solution>
